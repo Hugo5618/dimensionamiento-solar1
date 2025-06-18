@@ -116,9 +116,10 @@ if 'edit_index' in st.session_state:
         
         with st.form(f"editar_equipo_{i}"):
             nombre = st.text_input("Nombre del equipo", value=equipo["nombre"])
-            potencia = st.number_input("Potencia (W)", min_value=1, value=equipo["potencia"])
-            cantidad = st.number_input("Cantidad", min_value=1, value=equipo["cantidad"])
-            horas = st.number_input("Horas de uso por día", min_value=0.0, step=0.1, value=equipo["horas"])
+            potencia = st.number_input("Potencia (W)", min_value=1, value=int(equipo["potencia"]))
+            cantidad = st.number_input("Cantidad", min_value=1, value=int(equipo["cantidad"]))
+            horas = st.number_input("Horas de uso por día",min_value=0.0,step=0.1,value=float(equipo["horas"]))
+
             
             col1, col2 = st.columns(2)
             with col1:
