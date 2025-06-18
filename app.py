@@ -182,7 +182,6 @@ try:
     # Mostrar información del controlador
     st.markdown(f"""
     - Corriente de cortocircuito (Isc) del panel: {isc_panel:.2f} A
-    - Número de strings en paralelo: {n_paneles_paralelo:.0f}
     - Corriente mínima del controlador: {corriente_controlador:.2f} A
     - 🔌 *Controlador sugerido*: **{controlador_recomendado['Marca']}, {controlador_recomendado['Modelo']}** ({controlador_recomendado['Corriente Nominal (A)']}A)
     """)
@@ -211,7 +210,6 @@ st.markdown(f"""
 - Potencia requerida: {wp_necesarios:.2f} W
 - 🔆 *Panel sugerido*: {panel_recomendado['Marca']}, {panel_recomendado['Modelo']} de {panel_recomendado['Pmax (W)']:.0f} W
 - Número total de paneles requeridos: {np.ceil(n_paneles):.0f}
-- Configuración: {n_paneles_serie} en serie × {n_paneles_paralelo} en paralelo
 
 ### Inversor
 - Potencia recomendada del inversor: {potencia_inversor:.2f} W
