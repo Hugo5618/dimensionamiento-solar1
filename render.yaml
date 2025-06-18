@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: dimensionamiento-solar
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: streamlit run src/app.py --server.port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11
