@@ -69,74 +69,47 @@ with st.expander("➕ Agregar nuevo equipo manualmente"):
             st.rerun()
 
 # ----------------------------
-# Mostrar y editar equipos
+# Mostrar equipos en tabla editable
 # ----------------------------
 st.subheader("📋 Equipos seleccionados")
 
-# Crear DataFrame con botones de acción
+# Crear DataFrame con columna de selección
 df = pd.DataFrame(st.session_state.equipos)
 df["Potencia Total (W)"] = df["potencia"] * df["cantidad"]
 df["Energía diaria (Wh)"] = df["Potencia Total (W)"] * df["horas"]
+df["Seleccionar"] = False  # Columna para selección
 
-# Agregar columnas de acción
-df["Acciones"] = ""
+# Mostrar tabla con checkbox de selección
+edited_df = st.data_editor(
+    df,
+    column_config={
+        "Seleccionar": st.column_config.CheckboxColumn("Seleccionar"),
+        "nombre": "Equipo",
+        "potencia": st.column_config.NumberColumn("Potencia (W)", format="%d W"),
+        "cantidad": st.column_config.NumberColumn("Cantidad", format="%d"),
+        "horas": st.column_config.NumberColumn("Horas/día", format="%.1f"),
+        "Potencia Total (W)": st.column_config.NumberColumn("Potencia Total", format="%d W"),
+        "Energía diaria (Wh)": st.column_config.NumberColumn("Energía diaria", format="%.1f Wh")
+    },
+    hide_index=True,
+    disabled=["nombre", "potencia", "cantidad", "horas", "Potencia Total (W)", "Energía diaria (Wh)"],
+    use_container_width=True,
+    key="equipos_table"
+)
 
-# Mostrar la tabla con equipos
-for i, row in df.iterrows():
-    cols = st.columns([3, 2, 2, 2, 2, 3])
-    with cols[0]:
-        st.write(row["nombre"])
-    with cols[1]:
-        st.write(f"{row['potencia']} W")
-    with cols[2]:
-        st.write(row["cantidad"])
-    with cols[3]:
-        st.write(row["horas"])
-    with cols[4]:
-        st.write(f"{row['Energía diaria (Wh)']:.2f} Wh")
-    with cols[5]:
-        # Botones de editar y eliminar
-        edit_btn = st.button("✏️", key=f"edit_{i}")
-        delete_btn = st.button("🗑️", key=f"delete_{i}")
-        
-        if edit_btn:
-            st.session_state.edit_index = i
-            st.rerun()
-            
-        if delete_btn:
+# Botón para eliminar seleccionados
+if st.button("🗑️ Eliminar equipos seleccionados"):
+    # Obtener índices de las filas seleccionadas
+    selected_indices = [i for i, row in enumerate(edited_df.to_dict('records')) if row['Seleccionar']]
+    
+    if selected_indices:
+        # Eliminar en orden inverso para evitar problemas de índices
+        for i in sorted(selected_indices, reverse=True):
             st.session_state.equipos.pop(i)
-            st.success("Equipo eliminado correctamente!")
-            st.rerun()
-
-# Formulario de edición (aparece cuando se hace clic en editar)
-if 'edit_index' in st.session_state:
-    with st.expander("✏️ Editar equipo", expanded=True):
-        i = st.session_state.edit_index
-        equipo = st.session_state.equipos[i]
-        
-        with st.form(f"editar_equipo_{i}"):
-            nombre = st.text_input("Nombre del equipo", value=equipo["nombre"])
-            potencia = st.number_input("Potencia (W)", min_value=1, value=int(equipo["potencia"]))
-            cantidad = st.number_input("Cantidad", min_value=1, value=int(equipo["cantidad"]))
-            horas = st.number_input("Horas de uso por día",min_value=0.0,step=0.1,value=float(equipo["horas"]))
-
-            
-            col1, col2 = st.columns(2)
-            with col1:
-                if st.form_submit_button("Guardar cambios"):
-                    st.session_state.equipos[i] = {
-                        "nombre": nombre,
-                        "potencia": potencia,
-                        "cantidad": cantidad,
-                        "horas": horas
-                    }
-                    del st.session_state.edit_index
-                    st.success("Cambios guardados correctamente!")
-                    st.rerun()
-            with col2:
-                if st.form_submit_button("Cancelar"):
-                    del st.session_state.edit_index
-                    st.rerun()
+        st.success(f"{len(selected_indices)} equipos eliminados correctamente!")
+        st.rerun()
+    else:
+        st.warning("Por favor selecciona al menos un equipo para eliminar")
 # ----------------------------
 # Cálculos solares
 # ----------------------------
